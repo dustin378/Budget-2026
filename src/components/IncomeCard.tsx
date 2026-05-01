@@ -8,7 +8,8 @@ import { fmtMoney } from '../lib/money'
 import { todayISO } from '../lib/dates'
 
 export function IncomeCard({ month }: { month: MonthData }) {
-  const sources = useStore((s) => s.incomeSources.filter((x) => x.active))
+  const allSources = useStore((s) => s.incomeSources)
+  const sources = allSources.filter((x) => x.active)
   const setIncomeBudget = useStore((s) => s.setIncomeBudget)
   const addDeposit = useStore((s) => s.addIncomeDeposit)
   const updateDeposit = useStore((s) => s.updateIncomeDeposit)
@@ -28,7 +29,6 @@ export function IncomeCard({ month }: { month: MonthData }) {
         tone: totalActual >= totalBudget ? 'pos' : 'neutral',
       }}
     >
-      {/* per-source budget row */}
       <div className="px-4 py-2 grid grid-cols-[2fr,1fr,1fr] gap-3 items-center border-b border-line-soft">
         <div className="label">Source</div>
         <div className="label text-right">Budget</div>
@@ -51,7 +51,6 @@ export function IncomeCard({ month }: { month: MonthData }) {
         )
       })}
 
-      {/* deposits */}
       <div className="px-4 py-3">
         <div className="label mb-2">Deposits</div>
         <div className="space-y-1">
