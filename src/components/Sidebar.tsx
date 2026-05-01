@@ -4,34 +4,27 @@ import { computeMonthTotals, computeYTDIncome } from '../lib/compute'
 import { fmtMoney } from '../lib/money'
 
 export function Sidebar() {
-  const state = useStore()
-  const ytd = computeYTDIncome(state)
-  const activeMonth = state.ui.activeMonth
-  const activeView = state.ui.activeView
+  const year = useStore((s) => s.year)
+  const months = useStore((s) => s.months)
+  const account = useStore((s) => s.account)
+  const activeMonth = useStore((s) => s.ui.activeMonth)
+  const activeView = useStore((s) => s.ui.activeView)
+  const setActiveMonth = useStore((s) => s.setActiveMonth)
+  const setActiveView = useStore((s) => s.setActiveView)
+
+  const ytd = computeYTDIncome({ months, year } as any)
 
   return (
     <aside className="w-60 shrink-0 border-r border-line bg-paper-light flex flex-col">
       <div className="px-5 pt-6 pb-5 border-b border-line">
         <div className="display text-3xl leading-none">Budget</div>
-        <div className="display italic text-3xl leading-none text-ink-muted">{state.year}</div>
+        <div className="display italic text-3xl leading-none text-ink-muted">{year}</div>
       </div>
 
       <nav className="px-3 py-3 space-y-0.5">
-        <NavBtn
-          label="Dashboard"
-          active={activeView === 'dashboard'}
-          onClick={() => useStore.getState().setActiveView('dashboard')}
-        />
-        <NavBtn
-          label="Loans · Snowball"
-          active={activeView === 'loans'}
-          onClick={() => useStore.getState().setActiveView('loans')}
-        />
-        <NavBtn
-          label="Settings"
-          active={activeView === 'settings'}
-          onClick={() => useStore.getState().setActiveView('settings')}
-        />
+        <NavBtn label="Dashboard" active={activeView === 'dashboard'} onClick={() => setActiveView('dashboard')} />
+        <NavBtn label="Loans · Snowball" active={activeView === 'loans'} onClick={() => setActiveView('loans')} />
+        <NavBtn label="Settings" active={activeView === 'settings'} onClick={() => setActiveView('settings')} />
       </nav>
 
       <div className="rule mx-3" />
@@ -40,8 +33,8 @@ export function Sidebar() {
         <div className="label px-2 mb-2">Months</div>
         <div className="space-y-0.5">
           {MONTH_NAMES_SHORT.map((m, i) => {
-            const key = monthKey(state.year, i)
-            const md = state.months[key]
+            const key = monthKey(year, i)
+            const md = months[key]
             const totals = md ? computeMonthTotals(md) : null
             const isActive = activeView === 'month' && activeMonth === key
             const overspend = totals && totals.actualBal < 0
@@ -49,8 +42,8 @@ export function Sidebar() {
               <button
                 key={key}
                 onClick={() => {
-                  useStore.getState().setActiveView('month')
-                  useStore.getState().setActiveMonth(key)
+                  setActiveView('month')
+                  setActiveMonth(key)
                 }}
                 className={`w-full flex items-baseline justify-between px-2 py-1.5 rounded-sm text-left transition-colors ${
                   isActive ? 'bg-ink text-paper-light' : 'hover:bg-line-soft text-ink'
@@ -87,12 +80,12 @@ export function Sidebar() {
         </div>
         <div className="flex justify-between">
           <span className="label">Acct bal</span>
-          <span className="num">{fmtMoney(state.account.checkingBalance, { cents: false })}</span>
+          <span className="num">{fmtMoney(account.checkingBalance, { cents: false })}</span>
         </div>
-        {state.account.lastReconciledDate && (
+        {account.lastReconciledDate && (
           <div className="flex justify-between">
             <span className="label">Reconciled</span>
-            <span className="num text-ink-muted">{state.account.lastReconciledDate}</span>
+            <span className="num text-ink-muted">{account.lastReconciledDate}</span>
           </div>
         )}
       </div>
