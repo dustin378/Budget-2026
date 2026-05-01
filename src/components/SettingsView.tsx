@@ -6,10 +6,15 @@ import { TextInput } from './ui/TextInput'
 import { downloadJSON, importJSON } from '../lib/exportImport'
 
 export function SettingsView() {
-  const state = useStore()
+  const year = useStore((s) => s.year)
+  const recurringCreditAmount = useStore((s) => s.recurringCreditAmount)
+  const mileageRates = useStore((s) => s.mileageRates)
+  const incomeSources = useStore((s) => s.incomeSources)
+  const bills = useStore((s) => s.bills)
+  const categories = useStore((s) => s.categories)
+
   const setRecurring = useStore((s) => s.setRecurringCreditAmount)
   const setMileageRate = useStore((s) => s.setMileageRate)
-
   const addIncomeSource = useStore((s) => s.addIncomeSource)
   const updateIncomeSource = useStore((s) => s.updateIncomeSource)
   const removeIncomeSource = useStore((s) => s.removeIncomeSource)
@@ -42,47 +47,48 @@ export function SettingsView() {
     reader.readAsText(file)
   }
 
+  const exportSnapshot = () => {
+    const snapshot = useStore.getState()
+    downloadJSON(snapshot, `budget-${year}-${Date.now()}.json`)
+  }
+
   return (
     <div className="flex-1 overflow-y-auto">
       <header className="px-8 pt-8 pb-6 border-b border-line">
         <div className="label">Configuration</div>
-        <h1 className="display text-6xl leading-none mt-1">
-          Settings
-        </h1>
+        <h1 className="display text-6xl leading-none mt-1">Settings</h1>
       </header>
 
       <div className="px-8 py-6 space-y-6 max-w-5xl">
-        {/* Globals */}
         <Section title="Globals">
           <div className="px-4 py-4 grid grid-cols-2 gap-6">
             <div>
               <div className="label mb-1.5">Recurring credit (monthly default)</div>
-              <NumberInput value={state.recurringCreditAmount} onChange={setRecurring} />
+              <NumberInput value={recurringCreditAmount} onChange={setRecurring} />
               <p className="text-xs text-ink-muted mt-2">
                 Used as the default budget value when seeding new months.
               </p>
             </div>
             <div>
-              <div className="label mb-1.5">Mileage rate · {state.year} ($/mi)</div>
+              <div className="label mb-1.5">Mileage rate · {year} ($/mi)</div>
               <NumberInput
-                value={state.mileageRates[state.year] ?? 0.67}
-                onChange={(n) => setMileageRate(state.year, n)}
+                value={mileageRates[year] ?? 0.67}
+                onChange={(n) => setMileageRate(year, n)}
               />
               <p className="text-xs text-ink-muted mt-2">
-                IRS standard rate for {state.year} business mileage.
+                IRS standard rate for {year} business mileage.
               </p>
             </div>
           </div>
         </Section>
 
-        {/* Income sources */}
         <Section title="Income sources">
           <div className="px-4 py-2 grid grid-cols-[2fr,1fr,auto] gap-3 items-center border-b border-line-soft">
             <div className="label">Name</div>
             <div className="label text-right">Default budget</div>
             <div className="w-6" />
           </div>
-          {state.incomeSources.filter((s) => s.active).map((s) => (
+          {incomeSources.filter((s) => s.active).map((s) => (
             <div key={s.id} className="px-4 py-1.5 grid grid-cols-[2fr,1fr,auto] gap-3 items-center border-b border-line-soft last:border-0">
               <TextInput value={s.name} onChange={(name) => updateIncomeSource(s.id, { name })} />
               <NumberInput value={s.budgetedAmount} onChange={(budgetedAmount) => updateIncomeSource(s.id, { budgetedAmount })} />
@@ -106,7 +112,6 @@ export function SettingsView() {
           </div>
         </Section>
 
-        {/* Bills */}
         <Section title="Bills">
           <div className="px-4 py-2 grid grid-cols-[2fr,1fr,auto,auto,auto] gap-3 items-center border-b border-line-soft">
             <div className="label">Name</div>
@@ -115,7 +120,7 @@ export function SettingsView() {
             <div className="label">Day</div>
             <div className="w-6" />
           </div>
-          {state.bills.filter((b) => b.active).sort((a, b) => a.order - b.order).map((b) => (
+          {bills.filter((b) => b.active).sort((a, b) => a.order - b.order).map((b) => (
             <div key={b.id} className="px-4 py-1.5 grid grid-cols-[2fr,1fr,auto,auto,auto] gap-3 items-center border-b border-line-soft last:border-0">
               <TextInput value={b.name} onChange={(name) => updateBill(b.id, { name })} />
               <NumberInput value={b.budgetedAmount} onChange={(budgetedAmount) => updateBill(b.id, { budgetedAmount })} />
@@ -153,14 +158,13 @@ export function SettingsView() {
           </div>
         </Section>
 
-        {/* Categories */}
         <Section title="Expense categories">
           <div className="px-4 py-2 grid grid-cols-[2fr,1fr,auto] gap-3 items-center border-b border-line-soft">
             <div className="label">Name</div>
             <div className="label text-right">Default budget</div>
             <div className="w-6" />
           </div>
-          {state.categories.filter((c) => c.active).sort((a, b) => a.order - b.order).map((c) => (
+          {categories.filter((c) => c.active).sort((a, b) => a.order - b.order).map((c) => (
             <div key={c.id} className="px-4 py-1.5 grid grid-cols-[2fr,1fr,auto] gap-3 items-center border-b border-line-soft last:border-0">
               <TextInput value={c.name} onChange={(name) => updateCategory(c.id, { name })} />
               <NumberInput value={c.budgetedAmount} onChange={(budgetedAmount) => updateCategory(c.id, { budgetedAmount })} />
@@ -184,13 +188,9 @@ export function SettingsView() {
           </div>
         </Section>
 
-        {/* Data */}
         <Section title="Data">
           <div className="px-4 py-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button
-              className="btn"
-              onClick={() => downloadJSON(state, `budget-${state.year}-${Date.now()}.json`)}
-            >
+            <button className="btn" onClick={exportSnapshot}>
               Export JSON
             </button>
             <div>
