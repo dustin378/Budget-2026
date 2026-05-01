@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    height: 100%;
+  }
+  body {
+    @apply bg-paper text-ink font-sans antialiased;
+    font-feature-settings: 'ss01', 'cv02', 'cv03';
+  }
+  input, button, select, textarea {
+    @apply font-sans;
+  }
+  .num {
+    @apply font-mono tabular-nums;
+  }
+  .display {
+    @apply font-display tracking-tight;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-paper-light border border-line rounded-sm;
+  }
+  .field {
+    @apply bg-transparent border-b border-line-soft px-2 py-1 text-sm
+           focus:outline-none focus:border-ink transition-colors;
+  }
+  .field-num {
+    @apply field text-right font-mono tabular-nums;
+  }
+  .btn {
+    @apply px-3 py-1.5 text-sm border border-ink/20 bg-paper-light
+           hover:bg-ink hover:text-paper-light hover:border-ink
+           transition-colors rounded-sm;
+  }
+  .btn-primary {
+    @apply px-3 py-1.5 text-sm bg-ink text-paper-light
+           hover:bg-ink/90 transition-colors rounded-sm;
+  }
+  .btn-ghost {
+    @apply px-2 py-1 text-xs text-ink-muted hover:text-ink transition-colors;
+  }
+  .label {
+    @apply text-[10px] uppercase tracking-[0.18em] text-ink-muted font-medium;
+  }
+  .rule {
+    @apply border-t border-line-soft;
+  }
+  .rule-strong {
+    @apply border-t border-ink/30;
+  }
+}
+
+/* scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d4cdc1;
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a39d92;
+}
+
+/* number input arrows off */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+}
