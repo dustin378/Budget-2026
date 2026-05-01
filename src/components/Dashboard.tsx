@@ -17,15 +17,18 @@ import { projectPayoff } from '../lib/snowball'
 import { useMemo } from 'react'
 
 export function Dashboard() {
-  const state = useStore()
-  const ytd = computeYTDIncome(state)
-  const months = state.year
+  const year = useStore((s) => s.year)
+  const months = useStore((s) => s.months)
+  const loans = useStore((s) => s.loans)
+  const snowballConfig = useStore((s) => s.snowballConfig)
   const setActiveView = useStore((s) => s.setActiveView)
   const setActiveMonth = useStore((s) => s.setActiveMonth)
 
+  const ytd = computeYTDIncome({ months, year } as any)
+
   const monthData = Array.from({ length: 12 }, (_, i) => {
-    const key = monthKey(state.year, i)
-    const md = state.months[key]
+    const key = monthKey(year, i)
+    const md = months[key]
     if (!md) return null
     const t = computeMonthTotals(md)
     return {
@@ -46,15 +49,15 @@ export function Dashboard() {
   const totalSpent = monthData.reduce((a, m) => a + m.spent, 0)
   const monthsClosed = monthData.filter(m => m.status === 'closed').length
 
-  const snowball = useMemo(() => projectPayoff(state.loans, state.snowballConfig), [state.loans, state.snowballConfig])
-  const totalLoanBalance = state.loans.filter(l => l.active).reduce((a, l) => a + l.currentBalance, 0)
+  const snowball = useMemo(() => projectPayoff(loans, snowballConfig), [loans, snowballConfig])
+  const totalLoanBalance = loans.filter(l => l.active).reduce((a, l) => a + l.currentBalance, 0)
 
   return (
     <div className="flex-1 overflow-y-auto">
       <header className="px-8 pt-8 pb-6 border-b border-line">
         <div className="label">Year</div>
         <h1 className="display text-6xl leading-none mt-1">
-          {months}
+          {year}
           <span className="display italic text-ink-muted ml-3">overview</span>
         </h1>
       </header>
