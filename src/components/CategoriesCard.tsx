@@ -10,8 +10,9 @@ import { todayISO } from '../lib/dates'
 import { categoryActuals } from '../lib/compute'
 
 export function CategoriesCard({ month }: { month: MonthData }) {
-  const categories = useStore((s) =>
-    s.categories.filter((c) => c.active && month.categoryBudgets[c.id] !== undefined),
+  const allCategories = useStore((s) => s.categories)
+  const categories = allCategories.filter(
+    (c) => c.active && month.categoryBudgets[c.id] !== undefined,
   )
   const setCategoryBudget = useStore((s) => s.setCategoryBudget)
   const addTransaction = useStore((s) => s.addTransaction)
