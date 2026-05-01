@@ -9,7 +9,8 @@ import { todayISO } from '../lib/dates'
 import { billActuals } from '../lib/compute'
 
 export function BillsCard({ month }: { month: MonthData }) {
-  const bills = useStore((s) => s.bills.filter((b) => b.active && month.billBudgets[b.id] !== undefined))
+  const allBills = useStore((s) => s.bills)
+  const bills = allBills.filter((b) => b.active && month.billBudgets[b.id] !== undefined)
   const setBillBudget = useStore((s) => s.setBillBudget)
   const addBillPayment = useStore((s) => s.addBillPayment)
   const removeBillPayment = useStore((s) => s.removeBillPayment)
